@@ -2780,22 +2780,27 @@ function showPage(name) {
     target.classList.add('active');
     window.scrollTo(0, 0);
   }
-  // Update browser URL hash for back button support
-  window.location.hash = name === 'global' ? '' : name;
-}
-
-// Handle hash on load for direct linking
-function routeFromHash() {
-  var hash = window.location.hash.replace('#', '');
-  if (hash === 'leagues' || hash === 'players') {
-    showPage(hash);
-  } else {
-    showPage('global');
+  // Update hash without triggering hashchange loop
+  var newHash = '#' + name;
+  if (window.location.hash !== newHash) {
+    history.pushState(null, '', newHash);
   }
 }
 
-window.addEventListener('hashchange', routeFromHash);
-window.addEventListener('load', routeFromHash);
+// Handle browser back/forward
+window.addEventListener('popstate', function() {
+  var hash = window.location.hash.replace('#', '');
+  var valid = ['leagues', 'players', 'global'];
+  showPage(valid.indexOf(hash) !== -1 ? hash : 'global');
+});
+
+// Route on initial load
+(function() {
+  var hash = window.location.hash.replace('#', '');
+  if (hash === 'leagues') { showPage('leagues'); }
+  else if (hash === 'players') { showPage('players'); }
+  else { showPage('global'); }
+})();
 
 // GLOBAL PAGE SCRIPTS
 
